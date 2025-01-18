@@ -1,0 +1,30 @@
+[33mgpu id (to use): 1[0m
+[33mTrain mode[0m
+[iDP3Encoder] point cloud shape: [4096, 3]
+[iDP3Encoder] state shape: [15]
+[DP3Encoder] output dim: 192
+[DiffusionPointcloudPolicy] use_pc_color: False
+[DiffusionPointcloudPolicy] pointnet_type: multi_stage_pointnet
+[2025-01-17 17:01:54,188][diffusion_policy_3d.model.diffusion.conditional_unet1d][INFO] - number of parameters: 6.850933e+07
+----------------------------------
+Class name: DiffusionPointcloudPolicy
+  Number of parameters: 68.7783M
+   _dummy_variable: 0.0000M (0.00%)
+   obs_encoder: 0.2690M (0.39%)
+   model: 68.5093M (99.61%)
+   mask_generator: 0.0000M (0.00%)
+----------------------------------
+Resuming from checkpoint /media/viewer/Image_Lab/Embodied_AI_model/checkpoints/iDP3/marsmind-3d-idp3-0116_marsmind_episode_only_pc_cruise_B_seed0/checkpoints/latest.ckpt
+Loading MarsmindEpisodeDataset from /media/viewer/Image_Lab/embod_data/MarsMind_data/Cruise_B
+-----------------------------
+[WandB] group: marsmind-3d-idp3-0116_marsmind_episode_only_pc_cruise_B
+[WandB] name: 0
+-----------------------------
+val loss: 3.2536315
+checkpoint saved.
+val loss: 0.3982376
+checkpoint saved.
+val loss: 0.0027463
+checkpoint saved.
+val loss: 0.0007915
+checkpoint saved.

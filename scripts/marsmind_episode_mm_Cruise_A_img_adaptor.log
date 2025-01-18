@@ -1,0 +1,30 @@
+[33mgpu id (to use): 1[0m
+[33mTrain mode[0m
+Loaded R3M model using r3m. pretrained=True
+rgb keys:          ['image_main', 'image_wrist']
+low_dim_keys keys: ['agent_pos']
+point_cloud_keys keys: ['point_cloud']
+[2025-01-17 22:37:21,610][diffusion_policy_3d.model.mm.timm_img_encoder][INFO] - number of parameters: 2.235302e+07
+use_depth: False, use_depth_only: False
+[MMiDP3Encoder] point cloud shape: [4096, 3]
+[MMiDP3Encoder] state shape: [15]
+[MMiDP3Encoder] iamge shape: [3, 224, 224]
+[MMDP3Encoder] output dim: 320
+[DiffusionMMPolicy] use_pc_color: False
+[DiffusionMMPolicy] pointnet_type: multi_stage_pointnet
+[2025-01-17 22:37:22,169][diffusion_policy_3d.model.diffusion.conditional_unet1d][INFO] - number of parameters: 7.217934e+07
+----------------------------------
+Class name: DiffusionMMPolicy
+  Number of parameters: 95.3921M
+   _dummy_variable: 0.0000M (0.00%)
+   obs_encoder: 23.2127M (24.33%)
+   model: 72.1793M (75.67%)
+   mask_generator: 0.0000M (0.00%)
+----------------------------------
+Loading MarsmindEpisodeDatasetMM from /media/viewer/Image_Lab/embod_data/MarsMind_data/Cruise_A
+-----------------------------
+[WandB] group: marsmind-mm-mmidp3-0117_marsmind_episode_mm_cruise_A_img_adaptor
+[WandB] name: 0
+-----------------------------
+val loss: 4.4118299
+checkpoint saved.

@@ -1,0 +1,23 @@
+name: box
+
+shape_meta: &shape_meta
+  # acceptable types: rgb, low_dim
+  obs:
+    point_cloud:
+      shape: [4096, 3]
+      type: point_cloud
+    agent_pos:
+      shape: [15]
+      type: low_dim
+  action:
+    shape: [15]
+
+
+dataset:
+  _target_: diffusion_policy_3d.dataset.marsmind_dataset_3d.MarsmindEpisodeDataset3D
+  data_path: /media/viewer/Image_Lab/embod_data/MarsMind_data
+  task_name: Sample
+  pad_before: ${eval:'${n_obs_steps}-1'}
+  pad_after: ${eval:'${n_action_steps}-1'}
+
+  num_points: ${policy.pointcloud_encoder_cfg.num_points}

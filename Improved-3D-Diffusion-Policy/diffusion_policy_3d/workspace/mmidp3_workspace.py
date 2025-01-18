@@ -23,7 +23,7 @@ from termcolor import cprint
 import shutil
 import time
 from diffusion_policy_3d.workspace.base_workspace import BaseWorkspace
-from diffusion_policy_3d.policy.diffusion_pointcloud_policy import DiffusionPointcloudPolicy
+from diffusion_policy_3d.policy.diffusion_mm_policy import DiffusionMMPolicy
 from diffusion_policy_3d.common.checkpoint_util import TopKCheckpointManager
 from diffusion_policy_3d.common.json_logger import JsonLogger
 from diffusion_policy_3d.common.pytorch_util import dict_apply, optimizer_to
@@ -32,7 +32,7 @@ from diffusion_policy_3d.model.common.lr_scheduler import get_scheduler
 
 OmegaConf.register_new_resolver("eval", eval, replace=True)
 
-class iDP3Workspace(BaseWorkspace):
+class MMiDP3Workspace(BaseWorkspace):
     include_keys = ['global_step', 'epoch']
 
     def __init__(self, cfg: OmegaConf, output_dir=None):
@@ -46,9 +46,9 @@ class iDP3Workspace(BaseWorkspace):
         random.seed(seed)
 
         # configure model
-        self.model: DiffusionPointcloudPolicy = hydra.utils.instantiate(cfg.policy)
+        self.model: DiffusionMMPolicy = hydra.utils.instantiate(cfg.policy)
 
-        self.ema_model: DiffusionPointcloudPolicy = None
+        self.ema_model: DiffusionMMPolicy = None
         if cfg.training.use_ema:
             try:
                 self.ema_model = copy.deepcopy(self.model)
@@ -340,7 +340,7 @@ class iDP3Workspace(BaseWorkspace):
 
 def main(cfg):
 
-    workspace = iDP3Workspace(cfg)
+    workspace = MMiDP3Workspace(cfg)
     workspace.run()
 
 if __name__ == "__main__":

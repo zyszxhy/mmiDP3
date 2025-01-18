@@ -3,22 +3,22 @@
 #   bash scripts/train_policy.sh idp3 gr1_dex-3d 0913_example
 #   bash scripts/train_policy.sh dp_224x224_r3m gr1_dex-image 0913_example
 
-dataset_path=/media/viewer/Image_Lab/embod_data/iDP3_data/training_data_example
+dataset_path=/media/viewer/Image_Lab/embod_data/MarsMind_data
 
 
-DEBUG=True
+DEBUG=False
 wandb_mode=offline
 
 
-alg_name=${1}
-task_name=${2}
+alg_name=mmidp3
+task_name=marsmind-metaact-mm
 config_name=${alg_name}
-addition_info=${3}
+addition_info=0117_marsmind_episode_mm_cruise_A_img_adaptor
 seed=0
 exp_name=${task_name}-${alg_name}-${addition_info}
-run_dir="data/outputs/${exp_name}_seed${seed}"
+run_dir="/media/viewer/Image_Lab/Embodied_AI_model/checkpoints/iDP3/${exp_name}_seed${seed}"
 
-gpu_id=0
+gpu_id=1
 echo -e "\033[33mgpu id (to use): ${gpu_id}\033[0m"
 
 
@@ -48,7 +48,9 @@ python train.py --config-name=${config_name}.yaml \
                             exp_name=${exp_name} \
                             logging.mode=${wandb_mode} \
                             checkpoint.save_ckpt=${save_ckpt} \
-                            task.dataset.zarr_path=$dataset_path 
+                            task.dataset.data_path=$dataset_path \
+                            task.dataset.task_name=grasp
+
 
 
 

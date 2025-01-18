@@ -50,7 +50,7 @@ for episode_idx, episode_end in enumerate(all_episode_ends):
     # print(img_episode.shape)
     # print(point_cloud_episode.shape)
     
-    save_dir = f"visualizations/{dataset_path}/{episode_idx}"
+    save_dir = f"/media/viewer/Image_Lab/embod_data/iDP3_data/vis_data/{dataset_path.split('/')[-1]}/{episode_idx}"
     if vis_cloud:
         os.makedirs(save_dir, exist_ok=True)
     cprint(f"replay episode {episode_idx}", "green")
@@ -68,9 +68,10 @@ for episode_idx, episode_end in enumerate(all_episode_ends):
         if use_img:
             img = img_episode[i]
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            cv2.imshow('img', img)
-            cv2.waitKey(1)
-            time.sleep(0.05)
+            # cv2.imshow('img', img)
+            # cv2.waitKey(1)
+            # time.sleep(0.05)
+            cv2.imwrite(f"{save_dir}/{i}_rgb.png", img)
             
         # if vis_cloud and i >= 50:
         if vis_cloud:
@@ -86,7 +87,7 @@ for episode_idx, episode_end in enumerate(all_episode_ends):
     
     if vis_cloud:
         # to video
-        os.system(f"ffmpeg -r 10 -i {save_dir}/%d.png -vcodec mpeg4 -y visualizations/{dataset_path}/{episode_idx}.mp4")
+        os.system(f"ffmpeg -r 10 -i {save_dir}/%d.png -vcodec mpeg4 -y /media/viewer/Image_Lab/embod_data/iDP3_data/vis_data/{dataset_path.split('/')[-1]}/{episode_idx}.mp4")
 
         
         

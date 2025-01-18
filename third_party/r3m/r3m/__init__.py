@@ -42,7 +42,7 @@ def remove_language_head(state_dict):
     return state_dict
 
 def load_r3m(modelid, pretrained=True):
-    home = os.path.join(expanduser("~"), ".r3m")
+    home = os.path.join('/media/viewer/Image_Lab/Embodied_AI_model', "r3m")
     if modelid == "resnet50":
         foldername = "r3m_50"
         modelurl = 'https://drive.google.com/uc?id=1Xu0ssuG0N1zjZS54wmWzJ7-nb0-7XzbA'
