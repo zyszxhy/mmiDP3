@@ -4,7 +4,7 @@ Loaded R3M model using r3m. pretrained=True
 rgb keys:          ['image_main', 'image_wrist']
 low_dim_keys keys: ['agent_pos']
 point_cloud_keys keys: ['point_cloud']
-[2025-01-17 22:37:21,610][diffusion_policy_3d.model.mm.timm_img_encoder][INFO] - number of parameters: 2.235302e+07
+[2025-01-19 17:26:53,648][diffusion_policy_3d.model.mm.timm_img_encoder][INFO] - number of parameters: 2.235302e+07
 use_depth: False, use_depth_only: False
 [MMiDP3Encoder] point cloud shape: [4096, 3]
 [MMiDP3Encoder] state shape: [15]
@@ -12,7 +12,7 @@ use_depth: False, use_depth_only: False
 [MMDP3Encoder] output dim: 320
 [DiffusionMMPolicy] use_pc_color: False
 [DiffusionMMPolicy] pointnet_type: multi_stage_pointnet
-[2025-01-17 22:37:22,169][diffusion_policy_3d.model.diffusion.conditional_unet1d][INFO] - number of parameters: 7.217934e+07
+[2025-01-19 17:26:54,111][diffusion_policy_3d.model.diffusion.conditional_unet1d][INFO] - number of parameters: 7.217934e+07
 ----------------------------------
 Class name: DiffusionMMPolicy
   Number of parameters: 95.3921M
@@ -21,10 +21,9 @@ Class name: DiffusionMMPolicy
    model: 72.1793M (75.67%)
    mask_generator: 0.0000M (0.00%)
 ----------------------------------
+Resuming from checkpoint /media/viewer/Image_Lab/Embodied_AI_model/checkpoints/iDP3/marsmind-mm-mmidp3-0117_marsmind_episode_mm_cruise_A_img_adaptor_seed0/checkpoints/latest.ckpt
 Loading MarsmindEpisodeDatasetMM from /media/viewer/Image_Lab/embod_data/MarsMind_data/Cruise_A
 -----------------------------
 [WandB] group: marsmind-mm-mmidp3-0117_marsmind_episode_mm_cruise_A_img_adaptor
 [WandB] name: 0
 -----------------------------
-val loss: 4.4118299
-checkpoint saved.

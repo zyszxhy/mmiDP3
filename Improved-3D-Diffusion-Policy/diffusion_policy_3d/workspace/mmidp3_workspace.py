@@ -169,6 +169,7 @@ class MMiDP3Workspace(BaseWorkspace):
                 step_log = dict()
                 # ========= train for this epoch ==========
                 train_losses = list()
+                t0 = time.time()
                 for batch_idx, batch in enumerate(train_dataloader):
                     t1 = time.time()
                     # device transfer
@@ -208,7 +209,8 @@ class MMiDP3Workspace(BaseWorkspace):
                     t2 = time.time()
                     
                     if verbose:    # verbose
-                        print(f"total one step time: {t2-t1:.3f}")
+                        print(f"total one step time: {t2-t0:.3f}")
+                        print(f" data load time: {t1_1-t0:.3f}")
                         print(f" compute loss time: {t1_2-t1_1:.3f}")
                         print(f" step optimizer time: {t1_3-t1_2:.3f}")
                         print(f" update ema time: {t1_4-t1_3:.3f}")

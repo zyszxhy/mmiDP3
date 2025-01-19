@@ -17,6 +17,17 @@ USE_STATE_QVEL = True
 USE_STATE_BASE = True
 USE_ACTION_QVEL = True
 
+
+def save_images_to_npz(image_paths, npz_file):
+    images = []
+    
+    for img_path in image_paths:
+        img = Image.open(img_path).convert("RGB")
+        img_array = np.array(img)
+        images.append(img_array)
+
+    np.savez_compressed(npz_file, images=np.array(images))
+
 class MarsmindEpisodeDatasetMM(BaseDataset):
     def __init__(self,
             data_path, 
@@ -33,34 +44,57 @@ class MarsmindEpisodeDatasetMM(BaseDataset):
         self.use_img = use_img
         self.use_depth = use_depth
         self.num_points = num_points
-
-        self.episode_state_data = []
-        self.episode_action_data = []
-        self.episode_pc_data = []
-        self.episode_img_main_path = []
-        self.episode_img_wrist_path = []
-
-        self.episode_len = []
-
-        for dir_episode in os.listdir(os.path.join(data_path, task_name)):
-            episode_data = self.parse_episode(os.path.join(data_path, task_name, dir_episode))
-            self.episode_state_data.append(episode_data['state'])
-            self.episode_action_data.append(episode_data['action'])
-            self.episode_pc_data.append(episode_data['pc'])
-            self.episode_img_main_path.append(episode_data['img_main_path'])
-            self.episode_img_wrist_path.append(episode_data['img_wrist_path'])
-
-            self.episode_len.append(len(episode_data['state']))
         
-        assert len(self.episode_state_data) == len(self.episode_action_data) and \
-            len(self.episode_state_data) == len(self.episode_pc_data), 'data length error!'
+        self.all_state_data = []
+        self.all_action_data = []
+        self.all_pc_data = []
+        self.all_img_main_data = []
+        self.all_img_wrist_data = []
+        self.episode_len = []
+        episode_idx = 0
+
+        all_data_npz_path = os.path.join(data_path.replace('MarsMind_data', 'MarsMind_data_mmidp3'), task_name+'.npz')
+        if os.path.exists(all_data_npz_path):
+            print(f"{all_data_npz_path} already exists.")
+        else:
+            for dir_episode in os.listdir(os.path.join(data_path, task_name))[:2]:
+                episode_data = self.parse_episode(os.path.join(data_path, task_name, dir_episode))
+                # self.all_state_data[f"episode_{episode_idx}"] = episode_data['state']
+                # self.all_action_data[f"episode_{episode_idx}"] = episode_data['action']
+                # self.all_pc_data[f"episode_{episode_idx}"] = episode_data['pc']
+                # self.all_img_main_data[f"episode_{episode_idx}"] = episode_data['img_main_path']
+                # self.all_img_wrist_data[f"episode_{episode_idx}"] = episode_data['img_wrist_path']
+
+                self.all_state_data.append(episode_data['state'])
+                self.all_action_data.append(episode_data['action'])
+                self.all_pc_data.append(episode_data['pc'])
+                self.all_img_main_data.append(episode_data['img_main_path'])
+                self.all_img_wrist_data.append(episode_data['img_wrist_path'])
+
+                self.episode_len.append(len(episode_data['state']))
+                episode_idx += 1
+        
+            np.savez_compressed(all_data_npz_path, episode_len=self.episode_len)
+            np.savez_compressed(all_data_npz_path.replace('.npz', '_state.npz'), state=self.all_state_data)
+            np.savez_compressed(all_data_npz_path.replace('.npz', '_action.npz'), action=self.all_action_data)
+            np.savez_compressed(all_data_npz_path.replace('.npz', '_pc.npz'), pc=self.all_pc_data)
+            np.savez_compressed(all_data_npz_path.replace('.npz', '_img_main.npz'), img_main=self.all_img_main_data)
+            np.savez_compressed(all_data_npz_path.replace('.npz', '_img_wrist.npz'), img_wrist=self.all_img_wrist_data)
+            print(f"Save npz file of {task_name} to {all_data_npz_path}")
+        
+        self.episode_len = np.load(all_data_npz_path, allow_pickle=True)['episode_len']
+        self.all_state_data = np.load(all_data_npz_path.replace('.npz', '_state.npz'), allow_pickle=True)['state']
+        self.all_action_data = np.load(all_data_npz_path.replace('.npz', '_action.npz'), allow_pickle=True)['action']
+        self.all_pc_data = np.load(all_data_npz_path.replace('.npz', '_pc.npz'), allow_pickle=True)['pc']
+        self.all_img_main_data = np.load(all_data_npz_path.replace('.npz', '_img_main.npz'), allow_pickle=True)['img_main']
+        self.all_img_wrist_data = np.load(all_data_npz_path.replace('.npz', '_img_wrist.npz'), allow_pickle=True)['img_wrist']    
         
         self.cumulative_len = np.cumsum(self.episode_len)
         self.train_idx = np.arange(-pad_before, pad_after + 1)
         self.obs_len = pad_before + 1
 
     def get_normalizer(self, mode='limits', **kwargs):
-        data = {'action': np.concatenate(self.episode_action_data, axis=0)}
+        data = {'action': np.concatenate(self.all_action_data, axis=0)}
         normalizer = LinearNormalizer()
         normalizer.fit(data=data, last_n_dims=1, mode=mode, **kwargs)
 
@@ -109,12 +143,13 @@ class MarsmindEpisodeDatasetMM(BaseDataset):
         start_step = idx - (self.cumulative_len[episode_index] - self.episode_len[episode_index])
         
         # t1 = time.time()
-        episode_state = self.episode_state_data[episode_index]
-        episode_action = self.episode_action_data[episode_index]
-        episode_pc = self.episode_pc_data[episode_index]
-        episode_img_main_path = self.episode_img_main_path[episode_index]
-        episode_img_wrist_path = self.episode_img_wrist_path[episode_index]
+        episode_state = self.all_state_data[episode_index]
+        episode_action = self.all_action_data[episode_index]
+        episode_pc = self.all_pc_data[episode_index]
+        episode_img_main_path = self.all_img_main_data[episode_index]
+        episode_img_wrist_path = self.all_img_wrist_data[episode_index]
         # t2 = time.time()
+
         # print(f'time of load data is {t2-t1:.3f}')
 
         train_idx = self.train_idx + start_step
@@ -125,14 +160,16 @@ class MarsmindEpisodeDatasetMM(BaseDataset):
         sample['state'] = np.array(episode_state)[train_idx[:self.obs_len]]
         sample['action'] = np.array(episode_action)[train_idx]
         sample['point_cloud'] = np.array(episode_pc)[train_idx[:self.obs_len]]
+        sample['img_main'] = np.stack(episode_img_main_path[:self.obs_len])
+        sample['img_wrist'] = np.stack(episode_img_wrist_path[:self.obs_len])
 
-        img_main = []
-        img_wrist = []
-        for img_idx in train_idx[:self.obs_len]:
-            img_main.append(np.array(Image.open(episode_img_main_path[img_idx]).convert("RGB")))
-            img_wrist.append(np.array(Image.open(episode_img_wrist_path[img_idx]).convert("RGB")))
-        sample['img_main'] = np.stack(img_main)
-        sample['img_wrist'] = np.stack(img_wrist)
+        # img_main = []
+        # img_wrist = []
+        # for img_idx in train_idx[:self.obs_len]:
+        #     img_main.append(np.array(Image.open(episode_img_main_path[img_idx]).convert("RGB")))
+        #     img_wrist.append(np.array(Image.open(episode_img_wrist_path[img_idx]).convert("RGB")))
+        # sample['img_main'] = np.stack(img_main)
+        # sample['img_wrist'] = np.stack(img_wrist)
 
         data = self._sample_to_data(sample)
         to_torch_function = lambda x: torch.from_numpy(x) if x.__class__.__name__ == 'ndarray' else x
@@ -241,8 +278,8 @@ class MarsmindEpisodeDatasetMM(BaseDataset):
                     first_pc_data = point_process.uniform_sampling_numpy(first_pc_data[None, :], self.num_points)[0]
                     pc.append(first_pc_data)
 
-                    img_main_path.append(os.path.join(file_path, "p0", "rgb", log_files[i - 1].replace('.log', '.png')))
-                    img_wrist_path.append(os.path.join(file_path, "p1", "rgb", log_files[i - 1].replace('.log', '.png')))
+                    img_main_path.append(np.array(Image.open(os.path.join(file_path, "p0", "rgb", log_files[i - 1].replace('.log', '.png'))).convert("RGB")))
+                    img_wrist_path.append(np.array(Image.open(os.path.join(file_path, "p1", "rgb", log_files[i - 1].replace('.log', '.png'))).convert("RGB")))
                     
                 else:
                     if i == num_steps - 1:
@@ -269,8 +306,8 @@ class MarsmindEpisodeDatasetMM(BaseDataset):
             pc_data = point_process.uniform_sampling_numpy(pc_data[None, :], self.num_points)[0]
             pc.append(pc_data)
 
-            img_main_path.append(os.path.join(file_path, "p0", "rgb", log_files[i].replace('.log', '.png')))
-            img_wrist_path.append(os.path.join(file_path, "p1", "rgb", log_files[i].replace('.log', '.png')))
+            img_main_path.append(np.array(Image.open(os.path.join(file_path, "p0", "rgb", log_files[i].replace('.log', '.png'))).convert("RGB")))
+            img_wrist_path.append(np.array(Image.open(os.path.join(file_path, "p1", "rgb", log_files[i].replace('.log', '.png'))).convert("RGB")))
 
         # Return the resulting sample
         return {
